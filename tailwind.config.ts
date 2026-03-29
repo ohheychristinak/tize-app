@@ -9,8 +9,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        bg: "#faf9f7",
+        surface: "#ffffff",
+        border: "#e5e0d9",
+        text: "#1a1612",
+        muted: "#706860",
+        accent: "#b06a3a",
+        subnav: "#ede9e3",
+        header: "#3d2010",
+      },
+      borderRadius: {
+        card: "12px",
+      },
+      fontFamily: {
+        sans: [
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
       },
     },
   },
