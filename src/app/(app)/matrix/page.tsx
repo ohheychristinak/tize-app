@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { GripVertical } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { Task, Tag, MatrixDataEntry } from "@/lib/types";
+import { Task, Tag } from "@/lib/types";
 import { C, Q, calcScore, quadrantKey } from "@/lib/constants";
 import SliderPanel from "@/components/ui/SliderPanel";
 

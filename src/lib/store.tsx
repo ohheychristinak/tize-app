@@ -266,6 +266,7 @@ export function AppProvider({
   const saveTask = useCallback(
     (task: Task) => {
       setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { created_at, updated_at, ...rest } = task;
       supabase.from("tasks").update(rest).eq("id", task.id).then();
     },

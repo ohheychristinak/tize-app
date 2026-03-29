@@ -32,9 +32,11 @@ export default function ListPage() {
   const onToggleSub = (taskId: string, subtaskId: string) =>
     app.toggleSubtask(taskId, subtaskId);
   const onEdit = (task: Task) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__tize?.openEdit(task);
   const onDelete = (id: string) => app.deleteTask(id);
   const onAdd = (tier?: string, tag?: string) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__tize?.openNew(tier, tag);
 
   const rp = {

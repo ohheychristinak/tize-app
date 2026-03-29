@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Task, Tag } from "@/lib/types";
+import { Task } from "@/lib/types";
 import { C, UING, IING, Q, calcScore, quadrantKey } from "@/lib/constants";
 
 export default function IngPanel({

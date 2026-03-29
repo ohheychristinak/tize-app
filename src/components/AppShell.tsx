@@ -18,7 +18,6 @@ import TagModal from "./TagModal";
 import EditModal from "./EditModal";
 import RoutineEditor from "./RoutineEditor";
 import { Task, Tier } from "@/lib/types";
-import { uid } from "@/lib/constants";
 
 const tabs = [
   { id: "routines", label: "Routines", icon: CheckSquare, href: "/routines" },

@@ -366,6 +366,7 @@ export default function RoutinesPage() {
         <div className="text-center mt-3">
           <button
             onClick={() =>
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (window as any).__tize?.openRoutineEditor()
             }
             className="inline-flex items-center gap-1.5 text-xs text-white border-none rounded-lg cursor-pointer"

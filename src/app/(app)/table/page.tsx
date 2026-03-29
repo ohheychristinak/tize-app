@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/lib/store";
-import { Task, Tag } from "@/lib/types";
+import { Tag } from "@/lib/types";
 import { C, Q, calcScore, quadrantKey } from "@/lib/constants";
 import TagPill from "@/components/ui/TagPill";
 import IngPanel from "@/components/ui/IngPanel";

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Plus, Pencil } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { C, TIERS, calcScore, quadrantKey, Q } from "@/lib/constants";
-import type { Task, Tag } from "@/lib/types";
+import type { Task } from "@/lib/types";
 import Checkbox from "@/components/ui/Checkbox";
 import TagPill from "@/components/ui/TagPill";
 
@@ -177,8 +177,10 @@ export default function FocusPage() {
   // ── modal helpers ───────────────────────────────────────────────────────
 
   const openEdit = (task: Task) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__tize?.openEdit(task);
   const openNew = (tier?: string, tag?: string) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__tize?.openNew(tier, tag);
 
   // ── render ──────────────────────────────────────────────────────────────
