@@ -18,6 +18,11 @@ export default function TaskRow({
   onEdit,
   onDelete,
   col,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+  isDragOver,
 }: {
   task: Task;
   tags: Tag[];
@@ -29,6 +34,11 @@ export default function TaskRow({
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   col?: string;
+  onDragStart?: (e: React.DragEvent, id: string) => void;
+  onDragOver?: (e: React.DragEvent, id: string) => void;
+  onDrop?: (e: React.DragEvent, id: string) => void;
+  onDragEnd?: () => void;
+  isDragOver?: boolean;
 }) {
   const [hov, setHov] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -43,6 +53,11 @@ export default function TaskRow({
 
   return (
     <div
+      draggable={!!onDragStart}
+      onDragStart={(e) => onDragStart?.(e, task.id)}
+      onDragOver={(e) => { e.preventDefault(); onDragOver?.(e, task.id); }}
+      onDrop={(e) => { e.preventDefault(); onDrop?.(e, task.id); }}
+      onDragEnd={() => onDragEnd?.()}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => {
         setHov(false);
@@ -51,13 +66,14 @@ export default function TaskRow({
       className="transition-all"
       style={{
         borderBottom: "1px solid #ede8e2",
+        borderTop: isDragOver ? "2px solid #b06a3a" : "none",
         background: hov ? "#faf8f5" : "#fff",
         opacity: task.done ? 0.65 : 1,
         borderLeft: `3px solid ${ec}44`,
       }}
     >
       <div className="flex items-start gap-2.5 px-4 py-2.5">
-        <div className="mt-0.5 flex-shrink-0 select-none" style={{ color: "#c0b8b0" }}>
+        <div className="mt-0.5 flex-shrink-0 select-none cursor-grab" style={{ color: "#c0b8b0" }}>
           <GripVertical size={12} />
         </div>
         <Checkbox done={task.done} onToggle={() => onToggle(task.id)} color={rowC} />

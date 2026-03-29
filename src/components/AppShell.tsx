@@ -46,7 +46,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const activeMornItems = mornItems.filter((x) => itemActive(x, app.kidsMode, app.schoolDay));
   const mDone = activeMornItems.filter((x) => todayLog[x.id]).length;
 
-  const active = app.tasks.filter((t) => !t.done).length;
+  const activeTasks = app.tasks.filter((t) => !t.done);
+  const active = activeTasks.length;
   const scored = Object.values(app.matrixData).filter((m) => m?.scoring).length;
 
   async function handleSignOut() {
@@ -84,9 +85,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </div>
           <div className="ml-auto flex gap-2 items-center">
-            <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.6)" }}>
-              {active} active · {scored} scored
-            </span>
+            {scored > 0 ? (
+              <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+                {(() => {
+                  const ac = app.tasks.filter((t) => !t.done);
+                  const todayN = ac.filter((t) => t.tier === "today").length;
+                  const tomorrowN = ac.filter((t) => t.tier === "tomorrow").length;
+                  const weekN = ac.filter((t) => t.tier === "midweek" || t.tier === "lateweek").length;
+                  const nextN = ac.filter((t) => t.tier === "nextweek").length;
+                  const monthN = ac.filter((t) => t.tier === "thismonth" || t.tier === "later").length;
+                  return `Today: ${todayN} · Tomorrow: ${tomorrowN} · This week: ${weekN} · Next week: ${nextN} · Month: ${monthN}`;
+                })()}
+              </span>
+            ) : (
+              <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+                {active} active · Score tasks in Matrix
+              </span>
+            )}
             <button
               onClick={() => setShowTags(true)}
               className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] text-white"

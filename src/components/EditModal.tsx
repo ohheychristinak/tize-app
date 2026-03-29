@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Task, Tag, Tier, Recur } from "@/lib/types";
-import { C, TIERS, energyColor } from "@/lib/constants";
+import { Plus, X } from "lucide-react";
+import { Task, Tag, Tier, Recur, Subtask } from "@/lib/types";
+import { C, TIERS, energyColor, uid } from "@/lib/constants";
 
 export default function EditModal({
   task,
@@ -32,6 +33,17 @@ export default function EditModal({
   const [recurPeriod, setRecurPeriod] = useState<"week" | "month">(
     (task.recur as { type: "times"; period: "week" | "month" })?.period || "week"
   );
+
+  const [subtasks, setSubtasks] = useState<Subtask[]>(task.subtasks || []);
+  const [newSubText, setNewSubText] = useState("");
+
+  const addSubtask = () => {
+    const txt = newSubText.trim();
+    if (!txt) return;
+    setSubtasks((p) => [...p, { id: uid(), text: txt, done: false }]);
+    setNewSubText("");
+  };
+  const removeSubtask = (id: string) => setSubtasks((p) => p.filter((s) => s.id !== id));
 
   const DOW_L = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   const toggleDay = (d: number) =>
@@ -229,6 +241,65 @@ export default function EditModal({
           )}
         </div>
 
+        {/* Subtasks */}
+        <div className="mb-4 p-3 rounded-[9px]" style={{ background: C.bg, border: `1px solid ${C.border}` }}>
+          <label className="text-[11px] font-bold block mb-2 tracking-wide" style={{ color: C.muted }}>
+            SUBTASKS
+          </label>
+          {subtasks.length > 0 && (
+            <div className="mb-2">
+              {subtasks.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center gap-2 py-1.5 px-2 rounded-lg mb-1"
+                  style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                >
+                  <div
+                    className="w-3 h-3 rounded-sm flex-shrink-0"
+                    style={{
+                      border: `2px solid ${s.done ? C.accent : "#c8c0b8"}`,
+                      background: s.done ? C.accent : "transparent",
+                    }}
+                  />
+                  <span
+                    className="flex-1 text-[13px]"
+                    style={{
+                      color: s.done ? C.muted : C.text,
+                      textDecoration: s.done ? "line-through" : "none",
+                    }}
+                  >
+                    {s.text}
+                  </span>
+                  <button
+                    onClick={() => removeSubtask(s.id)}
+                    className="p-0.5 flex-shrink-0"
+                    style={{ color: C.faint }}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2 items-center">
+            <input
+              value={newSubText}
+              onChange={(e) => setNewSubText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSubtask())}
+              placeholder="Add subtask…"
+              className="flex-1 text-[13px] rounded-[7px] p-[7px_10px] outline-none"
+              style={{ border: `1px solid ${C.border}`, color: C.text }}
+            />
+            <button
+              onClick={addSubtask}
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-[7px] rounded-[7px] text-white flex-shrink-0"
+              style={{ background: C.accent }}
+            >
+              <Plus size={11} /> Add
+            </button>
+          </div>
+        </div>
+
         {/* Category */}
         <div className="mb-5">
           <label className="text-[11px] font-bold block mb-1.5 tracking-wide" style={{ color: C.muted }}>
@@ -275,6 +346,7 @@ export default function EditModal({
                   tier,
                   energy,
                   recur: buildRecur(),
+                  subtasks,
                 });
               }
             }}

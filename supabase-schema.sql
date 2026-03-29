@@ -5,7 +5,7 @@
 
 -- Tags table
 create table public.tags (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
   user_id uuid references auth.users(id) on delete cascade not null,
   label text not null,
   color text not null default '#b06a3a',

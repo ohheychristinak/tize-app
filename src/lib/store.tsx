@@ -53,6 +53,7 @@ interface AppStore {
   expandTask: (id: string) => void;
   toggleSubtask: (taskId: string, subtaskId: string) => void;
   moveTask: (id: string, tier: Tier, dueDate?: string | null) => void;
+  reorderTasks: (tier: Tier, orderedIds: string[]) => void;
 
   // tag mutations
   saveTags: (tags: Omit<Tag, "user_id">[]) => void;
@@ -121,6 +122,7 @@ export function AppProvider({
             .from("tasks")
             .select("*")
             .eq("user_id", userId)
+            .order("sort_order")
             .order("created_at"),
           supabase.from("tags").select("*").eq("user_id", userId),
           supabase.from("matrix_scores").select("*").eq("user_id", userId),
@@ -242,10 +244,14 @@ export function AppProvider({
       recur?: Recur;
       due_date?: string | null;
     }) => {
+      const tier = partial.tier || "today";
+      const maxOrder = ref.current.tasks
+        .filter((t) => t.tier === tier && !t.done)
+        .reduce((max, t) => Math.max(max, t.sort_order ?? 0), -1);
       const newTask: Task = {
         id: uid(),
         user_id: userId,
-        tier: partial.tier || "today",
+        tier,
         text: partial.text || "",
         tag: partial.tag || null,
         note: partial.note || "",
@@ -256,6 +262,7 @@ export function AppProvider({
         energy: partial.energy || 0,
         due_date: partial.due_date || null,
         recur: partial.recur || null,
+        sort_order: maxOrder + 1,
       };
       setTasks((prev) => [...prev, newTask]);
       supabase.from("tasks").insert(newTask).then();
@@ -366,6 +373,23 @@ export function AppProvider({
       const patch: Record<string, unknown> = { tier };
       if (dueDate !== undefined) patch.due_date = dueDate;
       supabase.from("tasks").update(patch).eq("id", id).then();
+    },
+    [supabase]
+  );
+
+  const reorderTasks = useCallback(
+    (tier: Tier, orderedIds: string[]) => {
+      setTasks((prev) =>
+        prev.map((t) => {
+          const idx = orderedIds.indexOf(t.id);
+          if (idx === -1) return t;
+          return { ...t, sort_order: idx };
+        })
+      );
+      // Persist each updated sort_order
+      orderedIds.forEach((id, idx) => {
+        supabase.from("tasks").update({ sort_order: idx }).eq("id", id).then();
+      });
     },
     [supabase]
   );
@@ -565,6 +589,7 @@ export function AppProvider({
         expandTask,
         toggleSubtask,
         moveTask,
+        reorderTasks,
         saveTags,
         updateMatrix,
         toggleRoutine,

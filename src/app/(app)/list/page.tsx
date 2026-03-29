@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Check } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { Task } from "@/lib/types";
+import { Task, Tier } from "@/lib/types";
 import { C, TIERS, calcScore, quadrantKey, getTierSub } from "@/lib/constants";
 import TaskRow from "@/components/TaskRow";
 
@@ -14,6 +14,8 @@ export default function ListPage() {
   const [byPri, setByPri] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [showDone, setShowDone] = useState(false);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const togCol = (k: string) =>
     setCollapsed((p) => ({ ...p, [k]: !p[k] }));
@@ -38,6 +40,36 @@ export default function ListPage() {
   const onAdd = (tier?: string, tag?: string) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__tize?.openNew(tier, tag);
+
+  // ── drag-to-reorder handlers ──────────────────────────────────────────
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+    setDragId(id);
+  };
+  const handleDragOver = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    if (id !== dragId) setDragOverId(id);
+  };
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!dragId || dragId === targetId) { setDragId(null); setDragOverId(null); return; }
+    const dragTask = tasks.find((t) => t.id === dragId);
+    const targetTask = tasks.find((t) => t.id === targetId);
+    if (!dragTask || !targetTask || dragTask.tier !== targetTask.tier) {
+      setDragId(null); setDragOverId(null); return;
+    }
+    const tierTasks = active
+      .filter((t) => t.tier === dragTask.tier)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const ids = tierTasks.map((t) => t.id).filter((id) => id !== dragId);
+    const targetIdx = ids.indexOf(targetId);
+    ids.splice(targetIdx, 0, dragId);
+    app.reorderTasks(dragTask.tier as Tier, ids);
+    setDragId(null);
+    setDragOverId(null);
+  };
+  const handleDragEnd = () => { setDragId(null); setDragOverId(null); };
 
   const rp = {
     tags,
@@ -216,10 +248,7 @@ export default function ListPage() {
       ) : (
         TIERS.map((tier) => {
           const ts = active.filter((t) => t.tier === tier.id);
-          const all = [
-            ...ts.filter((t) => t.pinned),
-            ...ts.filter((t) => !t.pinned),
-          ];
+          const all = [...ts].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
           if (!all.length) return null;
 
           const isCol = collapsed[tier.id];
@@ -293,6 +322,11 @@ export default function ListPage() {
                       task={t}
                       col={tier.color}
                       {...rp}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onDragEnd={handleDragEnd}
+                      isDragOver={dragOverId === t.id}
                     />
                   ))}
                   <button

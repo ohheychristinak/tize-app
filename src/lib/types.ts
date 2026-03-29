@@ -40,6 +40,7 @@ export interface Task {
   energy: number;
   due_date: string | null;
   recur: Recur;
+  sort_order: number;
   created_at?: string;
   updated_at?: string;
 }
