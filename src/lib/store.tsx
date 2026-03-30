@@ -122,7 +122,6 @@ export function AppProvider({
             .from("tasks")
             .select("*")
             .eq("user_id", userId)
-            .order("sort_order")
             .order("created_at"),
           supabase.from("tags").select("*").eq("user_id", userId),
           supabase.from("matrix_scores").select("*").eq("user_id", userId),
